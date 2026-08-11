@@ -45,5 +45,4 @@ ENV/
 .LSOverride
 
 # Project specific
-data/
-dataset/
+
