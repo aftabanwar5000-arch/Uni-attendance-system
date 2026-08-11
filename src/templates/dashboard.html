@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Admin Panel</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f4f6f9; 
+            padding: 20px; 
+            margin: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .top { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px;
+        }
+        .top h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        .card { 
+            background: white; 
+            padding: 20px; 
+            margin: 10px 10px 10px 0; 
+            display: inline-block; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05); 
+            min-width: 150px;
+        }
+        .card b {
+            display: block;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        .card span {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: white; 
+            margin-top: 20px; 
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        th, td { 
+            padding: 12px 15px; 
+            text-align: left; 
+            border-bottom: 1px solid #eee;
+        }
+        th { 
+            background: #2c3e50; 
+            color: white; 
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        select, button { 
+            padding: 8px 12px; 
+            margin-right: 10px; 
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background: #2980b9;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #1c5980;
+        }
+        .btn-clear {
+            background: #95a5a6;
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn-clear:hover {
+            background: #7f8c8d;
+        }
+        .logout { 
+            background: #e74c3c; 
+            color: white; 
+            padding: 8px 15px; 
+            text-decoration: none; 
+            border-radius: 5px; 
+            font-weight: bold;
+        }
+        .logout:hover { background: #c0392b; }
+        .export { 
+            background: #27ae60; 
+            color: white; 
+            padding: 8px 15px; 
+            text-decoration: none; 
+            border-radius: 5px; 
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .export:hover { background: #219150; }
+        
+        .status-check-in {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .status-check-out {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .filters {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="top">
+        <h2>University Face Recognition Dashboard</h2>
+        <div>
+            <a href="/export?department={{ department_filter or '' }}&semester={{ semester_filter or '' }}" class="export">Export CSV</a>
+            <a href="/logout" class="logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="filters">
+        <form method="GET" style="margin: 0;">
+            <select name="department">
+                <option value="">All Departments</option>
+                {% for d in departments %}
+                    <option value="{{ d }}" {% if d == department_filter %}selected{% endif %}>{{ d }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="semester">
+                <option value="">All Semesters</option>
+                {% for s in semesters %}
+                    <option value="{{ s }}" {% if s == semester_filter %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Filter</button>
+            <a href="/dashboard" class="btn-clear">Clear</a>
+        </form>
+    </div>
+
+    <div>
+        <div class="card">
+            <b>Today's Entries</b>
+            <span>{{ today_count }}</span>
+        </div>
+        <div class="card">
+            <b>Total Logs</b>
+            <span>{{ total_logs }}</span>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Roll No</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Department</th>
+                <th>Semester</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in logs %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[7] }}</td>
+                <td class="{% if row[2] == 'CHECK-IN' %}status-check-in{% else %}status-check-out{% endif %}">
+                    {{ row[2] }}
+                </td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>{{ row[6] }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: #777;">No logs found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
